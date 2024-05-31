@@ -1,15 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
+using Assets.Scripts;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     private CellStatus lastStatus;
     private CellStatus[,] board = new CellStatus[3,3];
+    [SerializeField]
+    private EndGame endGame;
     public bool isGameOver;
+    [SerializeField]
+    private LineController lineController;
     void Start()
     {
-        
+        Debug.Log(GameSettings.gameMode);
     }
 
     // Update is called once per frame
@@ -39,20 +43,24 @@ public class GameManager : MonoBehaviour
         {
             if (board[i,0] == player && board[i,1] == player && board[i,2] == player)
             {
+                lineController.OpenVertical(i);
                 return true;
             }
             if (board[0,i] == player && board[1, i] == player && board[2, i] == player)
             {
+                lineController.OpenHorizontal(i);
                 return true;
             }
 
         }
         if (board[0, 0] == player && board[1, 1] == player && board[2, 2] == player)
         {
+            lineController.OpenDiagonal(0);
             return true;
         }
         if (board[0, 2] == player && board[1, 1] == player && board[2, 0] == player)
         {
+            lineController.OpenDiagonal(1);
             return true;
         }
         return false;
@@ -79,12 +87,16 @@ public class GameManager : MonoBehaviour
             if (CheckWinner(newStatus) == true)
             {
                 isGameOver = true;
+                endGame.Display(newStatus);
+                
                 Debug.Log("Winner: " + newStatus);
             }
             else if(IsBoardFull() == true)
             {
                 isGameOver = true;
-                Debug.Log("Draft");
+                endGame.Display(CellStatus.None);
+                
+                Debug.Log("Draw");
             }
             else
             {
@@ -92,5 +104,13 @@ public class GameManager : MonoBehaviour
             }
 
         }
+    }
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    public void Exit()
+    {
+        Application.Quit();
     }
 }
